@@ -1,0 +1,64 @@
+/* Genel stiller */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Navbar stilleri */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+/* Kart stilleri */
+.card {
+    transition: transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,.2);
+}
+
+.card-title {
+    color: #0d6efd;
+    margin-bottom: 1rem;
+}
+
+.card-text {
+    color: #6c757d;
+    line-height: 1.6;
+}
+
+.card-footer {
+    background-color: transparent;
+    border-top: none;
+    padding: 1rem;
+}
+
+/* Mobil uyumluluk için ek stiller */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Form stilleri */
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+    border-color: #0d6efd;
+}
+
+/* Buton stilleri */
+.btn-primary {
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(13,110,253,.3);
+} 
