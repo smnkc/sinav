@@ -41,9 +41,6 @@ function fetchSinavlar() {
                 card.innerHTML = `
                     <div class="card-header">
                         <h5 class="card-title">${sinav.sinav_adi}</h5>
-                        <span class="info-badge">
-                            <i class="fas fa-calendar-day me-1"></i>${sinavGunu} ${sinavAyi}
-                        </span>
                     </div>
                     <div class="card-body">
                         <div class="ucret-item">
@@ -53,18 +50,6 @@ function fetchSinavlar() {
                         <div class="ucret-item">
                             <i class="fas fa-clock"></i>
                             <strong>Son Başvuru:</strong> ${formattedSonBasvuru}
-                        </div>
-                        <div class="ucret-item">
-                            <i class="fas fa-user-tie"></i>
-                            <strong>Gözetmen:</strong> ${sinav.gozetmen_ucret} ₺
-                        </div>
-                        <div class="ucret-item">
-                            <i class="fas fa-user-clock"></i>
-                            <strong>Yedek:</strong> ${sinav.yedek_ucret} ₺
-                        </div>
-                        <div class="ucret-item">
-                            <i class="fas fa-user-graduate"></i>
-                            <strong>Salon Başkanı:</strong> ${sinav.baskan_ucret} ₺
                         </div>
                         <div class="countdown" data-deadline="${sinav.son_basvuru_tarihi}"></div>
                         <a href="${sinav.basvuru_link}" target="_blank" class="btn btn-basvuru">

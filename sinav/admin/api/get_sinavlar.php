@@ -2,7 +2,7 @@
 session_start();
 require_once '../../config/db.php';
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 // Yönetici girişi kontrolü
 if(!isset($_SESSION['admin_id'])) {
@@ -13,23 +13,31 @@ if(!isset($_SESSION['admin_id'])) {
 
 try {
     $type = $_GET['type'] ?? 'aktif';
-    
-    $sql = "SELECT s.*, ss.sinav_adi 
-            FROM sinavlar s 
-            LEFT JOIN sinav_sablonlari ss ON s.sablon_id = ss.id";
+    $where = "1=1";
     
     if($type === 'aktif') {
-        $sql .= " WHERE s.aktif = 1 
-                  AND s.sinav_tarihi > NOW() 
-                  AND s.son_basvuru_tarihi > NOW()";
+        $where = "s.aktif = 1 AND s.sinav_tarihi > NOW() AND s.son_basvuru_tarihi > NOW()";
     }
-    
-    $sql .= " ORDER BY s.sinav_tarihi DESC";
-    
-    $stmt = $db->query($sql);
+
+    $stmt = $db->prepare("
+        SELECT s.*, ss.sinav_adi, ss.gozetmen_ucret, ss.yedek_ucret, ss.baskan_ucret, ss.basvuru_link 
+        FROM sinavlar s 
+        LEFT JOIN sinav_sablonlari ss ON s.sablon_id = ss.id 
+        WHERE {$where} 
+        ORDER BY s.sinav_tarihi
+    ");
+    $stmt->execute();
     $sinavlar = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    echo json_encode(['success' => true, 'sinavlar' => $sinavlar]);
+
+    echo json_encode([
+        'success' => true,
+        'sinavlar' => $sinavlar
+    ]);
+
 } catch(Exception $e) {
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => $e->getMessage()
+    ]);
 } 

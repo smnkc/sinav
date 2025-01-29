@@ -31,7 +31,7 @@ if(json_last_error() !== JSON_ERROR_NONE) {
 }
 
 // Gerekli alanları kontrol et
-if(!isset($input['sablon_id']) || !isset($input['sinav_tarihi']) || !isset($input['son_basvuru'])) {
+if(!isset($input['sinav_adi']) || !isset($input['basvuru_link'])) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Eksik veri']);
     exit;
@@ -40,38 +40,33 @@ if(!isset($input['sablon_id']) || !isset($input['sinav_tarihi']) || !isset($inpu
 try {
     $db->beginTransaction();
 
-    // Şablonun var olduğunu kontrol et
-    $stmt = $db->prepare("SELECT id FROM sinav_sablonlari WHERE id = ?");
-    $stmt->execute([$input['sablon_id']]);
-    if(!$stmt->fetch()) {
-        throw new Exception('Geçersiz şablon seçimi');
-    }
+    if(empty($input['id'])) {
+        // Yeni şablon ekleme
+        $stmt = $db->prepare("INSERT INTO sinav_sablonlari (sinav_adi, basvuru_link, created_at) VALUES (?, ?, NOW())");
+        if(!$stmt->execute([
+            $input['sinav_adi'],
+            $input['basvuru_link']
+        ])) {
+            throw new Exception('Şablon eklenirken bir hata oluştu');
+        }
+    } else {
+        // Mevcut şablonu güncelleme
+        $stmt = $db->prepare("UPDATE sinav_sablonlari SET sinav_adi = ?, basvuru_link = ? WHERE id = ?");
+        if(!$stmt->execute([
+            $input['sinav_adi'],
+            $input['basvuru_link'],
+            $input['id']
+        ])) {
+            throw new Exception('Şablon güncellenirken bir hata oluştu');
+        }
 
-    // Tarihleri kontrol et
-    $sinavTarihi = new DateTime($input['sinav_tarihi']);
-    $sonBasvuru = new DateTime($input['son_basvuru']);
-    $now = new DateTime();
-
-    if($sonBasvuru >= $sinavTarihi) {
-        throw new Exception('Son başvuru tarihi, sınav tarihinden önce olmalıdır');
-    }
-
-    if($sonBasvuru < $now) {
-        throw new Exception('Son başvuru tarihi geçmiş bir tarih olamaz');
-    }
-
-    // Sınavı ekle
-    $stmt = $db->prepare("INSERT INTO sinavlar (sablon_id, sinav_tarihi, son_basvuru_tarihi, aktif, created_at) VALUES (?, ?, ?, 1, NOW())");
-    if(!$stmt->execute([
-        $input['sablon_id'],
-        $input['sinav_tarihi'],
-        $input['son_basvuru']
-    ])) {
-        throw new Exception('Sınav eklenirken bir hata oluştu');
+        if($stmt->rowCount() === 0) {
+            throw new Exception('Şablon bulunamadı');
+        }
     }
 
     $db->commit();
-    echo json_encode(['success' => true, 'message' => 'Sınav başarıyla eklendi']);
+    echo json_encode(['success' => true, 'message' => 'Şablon başarıyla kaydedildi']);
 
 } catch(Exception $e) {
     $db->rollBack();
